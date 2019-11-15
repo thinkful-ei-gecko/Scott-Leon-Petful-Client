@@ -5,9 +5,8 @@ import React from 'react';
 import AdoptedItem from './AdoptedItem/AdoptedItem';
 
 function displayAdoptedItems() {
-  let adoptedItem = {petName: 'Maria', ownerName: 'Jenny', date: 'Nov 11', time: '8:45PM'};
+  let adoptedItem = {petName: 'Maria', ownerName: 'Jenny', date: 'Nov 11', time: '8:45PM', petType: 'dog'};
   let returnItem = [1,2,3].map(item => {
-    console.log('hit once');
     return <AdoptedItem {...adoptedItem} key={item} />
   })
   return returnItem;

@@ -7,11 +7,11 @@ import BigButton from '../../BigButton/BigButton';
 function PetItem(props) {
   return(
     <article className="petItem">
-      <img src={props.petImage} alt={props.petImageAlt} />
+      <img src={props.imageURL} alt={props.imageDesc} />
       <ul>
-        <li>{props.petName}</li>
-        <li>{props.petType}</li>
-        <li>{props.gender}</li>
+        <li>{props.name}</li>
+        <li>{props.breed}</li>
+        <li>{props.sex}</li>
         <li>{props.age} years old</li>
         <li>{props.breed}</li>
       </ul>

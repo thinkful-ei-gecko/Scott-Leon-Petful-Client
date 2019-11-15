@@ -1,34 +1,76 @@
 //Dependencies
 import React from 'react';
+import {Link} from 'react-router-dom'
 
 //Components
 import PetItem from './PetItem/PetItem'
 import BigButton from '../BigButton/BigButton';
+import config from '../../config';
 
-function showPetList() {
+
+
+class PetList extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
+
+  showPetList = () => {
+    this.getPets();
+    let returnDog = <PetItem {...this.state.dog} key='dog' />
+    let returnCat = <PetItem {...this.state.cat} key='cat' />
+    return [returnDog, returnCat]
+  }
   
-  let data = [{petType: 'Cat', petName: 'fluffy', petImage: "#", petImageAlt: 'A cute cat', gender: 'girl', age: 2, breed: 'bengal', story: 'She was thrown on the streets'},
-              {petType: 'Dog', petName: 'Mr. Barker III', petImage: '#', petImageAlt: 'A cute boy', gender: 'boy', age: 4, breed: 'golden', story: 'He filed his taxes wrong, got thrown in jail, and now has no home'}];
-  let returnData = data.map((pet,index) => {
-    return <PetItem {...pet} key={index} />
-  });
-  return returnData;
-}
 
-function PetList() {
-  return (
-    <section className="petList">
-      <h1>Petful</h1>
-      <h2>Current Pets</h2>
-      {showPetList()}
-      <div className="yellowDivider"></div>
-      <div className="adoptBoth">
-        <h4>or</h4>
-        <BigButton text='adopt both' classNames='adopt' />
-      </div>
-    </section>
-  );
-
+  getPets = () => {
+    if (!this.state.dog) {
+    let data = {}
+    fetch(`${config.API_ENDPOINT}dog`)
+      .then(res => {
+        console.log(res);
+        if (!res.ok) {
+          throw new Error('please refresh');
+        }
+      return res.json();
+      })
+      .then(resJson => {
+        data.dog = resJson
+        console.log(data);
+      })
+      .then(() => {
+        return fetch(`${config.API_ENDPOINT}cat`)
+        .then(res => {
+          if (!res.ok) {
+            throw new Error('please refresh');
+          }
+        return res.json();
+        })
+        .then(resJson => {
+          data.cat = resJson;
+          console.log(data);
+        })
+      })
+      .then(() => this.setState({dog: data.dog, cat: data.cat}))
+      .catch(error => console.error('refresh please'));
+      }
+    }
+  render() {
+    let refresh = setTimeout(() => this.setState({dog: '', cat: ''}), 10000);
+    return (
+      <main className="main petList">
+        <Link to="/"><h1>Petful</h1></Link>
+        <div class="yellowDivider"></div>
+        <h2>Current Pets</h2>
+        {this.showPetList()}
+        <div className="yellowDivider"></div>
+        <div className="adoptBoth">
+          <h4>or</h4>
+          <BigButton text='adopt both' classNames='adopt' />
+        </div>
+      </main>
+    );
+  }
 }
 
 export default PetList;
