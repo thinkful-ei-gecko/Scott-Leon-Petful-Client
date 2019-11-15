@@ -7,21 +7,164 @@ import Queue from './Components/Queue/Queue';
 import Splash from './Components/Splash/Splash';
 import PetList from './Components/PetList/PetList';
 import AdoptedList from './Components/AdoptedList/AdoptedList';
+import config from './config';
 
 //CSS
 import './App.css';
 
 
 
-function App() {
-  return (
-    <div className="App">
-      <Queue />
-      <Route exact path="/" component={Splash} />
-      <Route path = "/pets" component={PetList} />
-      <AdoptedList />
-    </div>
-  );
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      dog: '',
+      cat: '',
+      people: '',
+      auto: true
+    }
+  }
+
+  cycleNext = () => {
+    let person = {};
+    let cat = {};
+    let dog = {};
+    return fetch(`${config.API_ENDPOINT}people/next`, {
+      method: 'DELETE',
+      headers: {
+        'content-type': 'application/json'
+      }
+    })
+    .then(res => {
+      console.log(res);
+      if (!res.ok) {
+        throw new Error('please refresh');
+      }
+    return res.json();
+    })
+    .then(resJson => {
+
+      if (person.wants === 'cat') {
+      fetch(`${config.API_ENDPOINT}cat`, {
+        method: 'DELETE',
+        headers: {
+          'content-type': 'application/json'
+        }
+      })
+      .then(res => {
+        console.log(res);
+        if (!res.ok) {
+          throw new Error('please refresh');
+        }
+      return res.json();
+      })
+      .then(resJson => {
+        cat = resJson
+      })
+    }
+
+    else {
+      fetch(`${config.API_ENDPOINT}dog`, {
+          method: 'DELETE',
+          headers: {
+            'content-type': 'application/json'
+          }
+        })
+        .then(res => {
+          console.log(res);
+          if (!res.ok) {
+            throw new Error('please refresh');
+          }
+        return res.json();
+        })
+        .then(resJson => {
+          dog = resJson
+        })
+      }
+    })
+    .catch(error => console.error('there has been an error'));
+
+  }
+
+  attemptProcess = () => {
+    if (this.state.auto) {
+      this.cycleNext();
+    }
+    let check = window.localStorage.getItem('inQueue')
+    if (check) {
+      //it's time to adopt
+      //show message on screen saying 'it's your turn to choose your animal'
+      //redirect to /pets page
+      //timer is halted until this action is completed
+      //once the choice is made, process person /next delete
+    }
+  }
+
+  getNextPerson = () => {
+    if (!this.state.auto) {
+    return fetch(`${config.API_ENDPOINT}people/next`)
+      .then(res => {
+        console.log(res);
+        if (!res.ok) {
+          throw new Error('please refresh');
+        }
+      return res.json();
+      })
+      .then(resJson => {
+        if (resJson.auto === false) {
+          this.setState({auto: false}, this.checkIfAuto());
+        }
+      })
+      .catch(error => console.error('error in people'));
+    }
+  }
+
+  getPets = () => {
+    if (!this.state.dog || !this.state.cat) {
+    let data = {}
+    fetch(`${config.API_ENDPOINT}dog`)
+      .then(res => {
+        console.log(res);
+        if (!res.ok) {
+          throw new Error('please refresh');
+        }
+      return res.json();
+      })
+      .then(resJson => {
+        data.dog = resJson
+        console.log(data);
+      })
+      .then(() => {
+        return fetch(`${config.API_ENDPOINT}cat`)
+        .then(res => {
+          if (!res.ok) {
+            throw new Error('please refresh');
+          }
+          return res.json();
+        })
+        .then(resJson => {
+          data.cat = resJson;
+          console.log(data);
+        })
+      })
+      .then(() => this.setState({dog: data.dog, cat: data.cat}))
+      .catch(error => console.error('refresh please'));
+      }
+    }
+
+  render() {
+  this.getPets();
+  let auto = setTimeout(() => this.getNextPerson(), 10000);
+    return (
+      <div className="App">
+        <Queue people={this.state.people}/>
+        <Route exact path="/" component={Splash} />
+        <Route path = "/pets" render={() =>
+          <PetList dog={this.state.dog} cat={this.state.cat} />} />
+        <AdoptedList />
+      </div>
+    );
+  }
 }
 
 export default App;

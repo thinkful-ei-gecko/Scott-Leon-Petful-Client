@@ -33,6 +33,7 @@ button {
   text-shadow: none;
   border: none;
   text-align: center;
+  padding: 5px;
 }
 
 /* main */
