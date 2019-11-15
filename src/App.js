@@ -22,7 +22,9 @@ class App extends React.Component {
       cat: '',
       people: '',
       auto: true,
-      choiceTime: false
+      choiceTime: false,
+      adoptionList: [{petName: 'bob', ownerName: 'also bob', petType: 'dog'},
+                     {petName: 'steve', ownerName: 'bilbo', petType: 'cat'}],
     }
   }
 
@@ -168,7 +170,7 @@ class App extends React.Component {
         <Route exact path="/" component={Splash} />
         <Route path = "/pets" render={() =>
           <PetList dog={this.state.dog} cat={this.state.cat} />} />
-        <AdoptedList />
+        <AdoptedList adoptionList={this.state.adoptionList} />
       </div>
     );
   }

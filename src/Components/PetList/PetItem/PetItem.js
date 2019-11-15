@@ -13,7 +13,6 @@ function PetItem(props) {
         <li>{props.breed}</li>
         <li>{props.sex}</li>
         <li>{props.age} years old</li>
-        <li>{props.breed}</li>
       </ul>
       <div className="clear description">{props.story}</div>
       <BigButton text='adopt me!' classNames='adopt' />
