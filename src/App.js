@@ -21,7 +21,8 @@ class App extends React.Component {
       dog: '',
       cat: '',
       people: '',
-      auto: true
+      auto: true,
+      choiceTime: false
     }
   }
 
@@ -29,6 +30,7 @@ class App extends React.Component {
     let person = {};
     let cat = {};
     let dog = {};
+    let both = {};
     return fetch(`${config.API_ENDPOINT}people/next`, {
       method: 'DELETE',
       headers: {
@@ -43,8 +45,8 @@ class App extends React.Component {
     return res.json();
     })
     .then(resJson => {
-
-      if (person.wants === 'cat') {
+      person = resJson;
+      if (person.wants === 'cat' || person.wants === 'both') {
       fetch(`${config.API_ENDPOINT}cat`, {
         method: 'DELETE',
         headers: {
@@ -63,7 +65,7 @@ class App extends React.Component {
       })
     }
 
-    else {
+    if (person.wants === 'dog'  || person.wants === 'both') {
       fetch(`${config.API_ENDPOINT}dog`, {
           method: 'DELETE',
           headers: {
@@ -82,6 +84,10 @@ class App extends React.Component {
         })
       }
     })
+    .then(() => {
+      //set recently adopted with dog and cat and person ()
+      //call getPets()
+    })
     .catch(error => console.error('there has been an error'));
 
   }
@@ -90,18 +96,19 @@ class App extends React.Component {
     if (this.state.auto) {
       this.cycleNext();
     }
-    let check = window.localStorage.getItem('inQueue')
-    if (check) {
-      //it's time to adopt
-      //show message on screen saying 'it's your turn to choose your animal'
-      //redirect to /pets page
-      //timer is halted until this action is completed
-      //once the choice is made, process person /next delete
+    else {
+      let check = window.localStorage.getItem('inQueue')
+      if (check) {
+        //it's time to adopt
+        //show message on screen saying 'it's your turn to choose your animal'
+        //redirect to /pets page
+        //timer is halted until this action is completed
+        //once the choice is made, process person /next delete
+      }
     }
   }
 
   getNextPerson = () => {
-    if (!this.state.auto) {
     return fetch(`${config.API_ENDPOINT}people/next`)
       .then(res => {
         console.log(res);
@@ -112,11 +119,11 @@ class App extends React.Component {
       })
       .then(resJson => {
         if (resJson.auto === false) {
-          this.setState({auto: false}, this.checkIfAuto());
+          this.setState({auto: false}, this.attemptProcess());
         }
+        this.attemptProcess();
       })
       .catch(error => console.error('error in people'));
-    }
   }
 
   getPets = () => {

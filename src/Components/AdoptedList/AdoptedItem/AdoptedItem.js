@@ -16,10 +16,6 @@ function AdoptedItem(props) {
           <span className="petName"><span className="bold">{props.petName}</span> was adopted!</span>
           <span className="ownerName">Thank you {props.ownerName}!!!</span>
         </div>
-        <div className="timeAndDate">
-          <span className="date">{props.date}</span>
-          <span className="time">{props.time}</span>
-        </div>
       </div>
     </li>
 
