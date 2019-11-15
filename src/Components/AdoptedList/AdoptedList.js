@@ -6,9 +6,11 @@ import AdoptedItem from './AdoptedItem/AdoptedItem';
 
 function displayAdoptedItems() {
   let adoptedItem = {petName: 'Maria', ownerName: 'Jenny', date: 'Nov 11', time: '8:45PM'};
-  [1,2,3].forEach(item => {
-    return <AdoptedItem props={adoptedItem} key={item} />
+  let returnItem = [1,2,3].map(item => {
+    console.log('hit once');
+    return <AdoptedItem {...adoptedItem} key={item} />
   })
+  return returnItem;
 
 }
 

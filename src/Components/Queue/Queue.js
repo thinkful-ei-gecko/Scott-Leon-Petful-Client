@@ -9,12 +9,12 @@ function numberInQueue() {
       <img src="#" alt="person waiting"></img>
     </li>
   });
-  return `${number} ${peopleSprites}`
+  return [number,peopleSprites];
 }
 
 function checkIfInQueue() {
   let inQueueText = <div><h6>You are not in the queue!</h6><h6 className="joinQueueSmall">Join!</h6></div>
-  let inQueueCheck = window.localStorage.get('inQueue');
+  let inQueueCheck = window.localStorage.getItem('inQueue');
   if (inQueueCheck) {
     inQueueText = <div><h6>You are number {inQueueCheck} in queue!</h6></div>
   }

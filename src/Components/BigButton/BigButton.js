@@ -5,3 +5,5 @@ export const BigButton = (props) => {
     <button type="submit" className={`bigButton ${props.classNames}`}>{props.text}</button>
   )
 }
+
+export default BigButton;
