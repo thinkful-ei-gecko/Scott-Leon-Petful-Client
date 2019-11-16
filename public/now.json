@@ -1,7 +1,7 @@
 {
   "version": 2,
   "name": "petful",
-  "alias": "petful",
+  "alias": "petful-client-scott-leon",
   "routes": [
     {
       "src": "^/static/(.*)",
@@ -22,6 +22,6 @@
     {
       "src": ".*",
       "dest": "/index.html"
-    },
+    }
   ]
  }
