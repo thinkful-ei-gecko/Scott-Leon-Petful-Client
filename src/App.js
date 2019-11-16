@@ -166,7 +166,7 @@ class App extends React.Component {
   let auto = setTimeout(() => this.getNextPerson(), 10000);
     return (
       <div className="App">
-        <Queue people={this.state.people}/>
+        <Queue people={this.state.people} />
         <Route exact path="/" component={Splash} />
         <Route path = "/pets" render={() =>
           <PetList dog={this.state.dog} cat={this.state.cat} />} />

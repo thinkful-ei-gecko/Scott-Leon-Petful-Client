@@ -4,10 +4,6 @@ import React from 'react';
 //Components
 import AdoptedItem from './AdoptedItem/AdoptedItem';
 
-
-
-
-
 function AdoptedList(props) {
 
   function displayAdoptedItems() {

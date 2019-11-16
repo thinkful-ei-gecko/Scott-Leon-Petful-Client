@@ -25,7 +25,7 @@ class PetList extends React.Component {
     return (
       <main className="main petList">
         <Link to="/"><h1>Petful</h1></Link>
-        <div class="yellowDivider"></div>
+        <div className="yellowDivider"></div>
         <h2>Current Pets</h2>
         {this.showPetList()}
         <div className="yellowDivider"></div>

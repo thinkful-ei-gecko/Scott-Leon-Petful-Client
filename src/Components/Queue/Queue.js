@@ -4,10 +4,10 @@ import {Link} from 'react-router-dom'
 
 function numberInQueue() {
   let data = [1,2,3,4,5];
-  let number = <h6 class="bold">{data.length} people in the queue now</h6>;
-  let peopleSprites = data.map(item => {
-    return <li key={item} className={`personSprite ${item===1 ? 'nextInLine' : ''}`}>
-      <img src="personSprite.png" alt="person waiting"></img>
+  let number = <h6 className="bold" key={data[0]}>{data.length} people in the queue now</h6>;
+  let peopleSprites = data.map((item, index) => {
+    return <li key={index} className={`personSprite ${item===1 ? 'nextInLine' : ''}`}>
+      <img src="personSprite.png" alt="person waiting" ></img>
     </li>
   });
   return [number,peopleSprites];
