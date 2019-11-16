@@ -2,7 +2,7 @@ import React from 'react'
 
 export const BigButton = (props) => {
   return (
-    <button type="submit" className={`bigButton ${props.classNames}`}>{props.text}</button>
+    <button type={props.type} className={`bigButton ${props.classNames}`}>{props.text}</button>
   )
 }
 

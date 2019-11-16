@@ -7,7 +7,7 @@ import JoinForm from './JoinForm/JoinForm';
 import BigButton from '../BigButton/BigButton';
 
 
-function Splash() {
+function Splash(props) {
   return(
     <main className="main splash">
       <Link to="/"><h1>Petful</h1></Link>
@@ -22,9 +22,9 @@ function Splash() {
       and choose whether you want the next available dog,
         cat, or both!</p>
     <div class="yellowDivider extra30space"></div>
-    <JoinForm />
+    <JoinForm addToQueue={props.addToQueue}/>
     <div class="yellowDivider extra30space"></div>
-    <Link to="/pets"><BigButton classNames='viewPets' text='view pets' /></Link>
+    <Link to="/pets"><BigButton type="button" classNames='viewPets' text='view pets' /></Link>
     </main>
   );
 }

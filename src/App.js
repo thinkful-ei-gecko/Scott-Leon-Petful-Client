@@ -26,8 +26,42 @@ class App extends React.Component {
     }
   }
 
-  cycleNext = () => {
-    let person = {};
+  addToQueue = (name) => {
+    window.localStorage.setItem('inQueue', 'inQueue');
+    fetch(`${config.API_ENDPOINT}people`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({name})
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('please refresh');
+        }
+      return res.json();
+      })
+      .then(() => {
+        return fetch(`${config.API_ENDPOINT}people/all`, {
+          method: 'GET',
+          headers: {
+            'content-type': 'application/json'
+          }
+        })
+          .then(res => {
+            if (!res.ok) {
+              throw new Error('please refresh');
+            }
+          return res.json();
+          })
+          .then(resJson => this.setState({people: resJson}))
+      })
+      .catch(error => console.error('there has been an error'));
+
+  }
+
+  cycleNext = (person) => {
+    person = person || {};
     let cat = {};
     let dog = {};
     let both = {};
@@ -38,14 +72,15 @@ class App extends React.Component {
       }
     })
     .then(res => {
-      console.log(res);
       if (!res.ok) {
         throw new Error('please refresh');
       }
     return res.json();
     })
     .then(resJson => {
-      person = resJson;
+      if (resJson.wants !== null) {
+        person = resJson
+      }
       if (person.wants === 'cat' || person.wants === 'both') {
       fetch(`${config.API_ENDPOINT}cat`, {
         method: 'DELETE',
@@ -54,7 +89,6 @@ class App extends React.Component {
         }
       })
       .then(res => {
-        console.log(res);
         if (!res.ok) {
           throw new Error('please refresh');
         }
@@ -73,7 +107,6 @@ class App extends React.Component {
           }
         })
         .then(res => {
-          console.log(res);
           if (!res.ok) {
             throw new Error('please refresh');
           }
@@ -92,26 +125,24 @@ class App extends React.Component {
 
   }
 
-  attemptProcess = () => {
+  attemptProcess = (resJson) => {
     if (this.state.auto) {
       this.cycleNext();
     }
     else {
       let check = window.localStorage.getItem('inQueue')
       if (check) {
-        //it's time to adopt
-        //show message on screen saying 'it's your turn to choose your animal'
-        //redirect to /pets page
-        //timer is halted until this action is completed
-        //once the choice is made, process person /next delete
+        if (this.state.choiceTime !== true) {
+          this.setState({choiceTime: true});
+          window.alert('Its time for you to adopt your animal!');
+        }
+        }
       }
     }
-  }
 
   getNextPerson = () => {
     return fetch(`${config.API_ENDPOINT}people/next`)
       .then(res => {
-        console.log(res);
         if (!res.ok) {
           throw new Error('please refresh');
         }
@@ -119,19 +150,32 @@ class App extends React.Component {
       })
       .then(resJson => {
         if (resJson.auto === false) {
-          this.setState({auto: false}, this.attemptProcess());
+          this.setState({auto: false}, this.attemptProcess(resJson));
         }
         this.attemptProcess();
       })
       .catch(error => console.error('error in people'));
   }
 
+  getPeople = () => {
+    if (!this.state.people || this.state.people === '') {
+    fetch(`${config.API_ENDPOINT}people/all`)
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('please refresh');
+        }
+      return res.json();
+      })
+      .then(resJson => this.setState({people: resJson}))
+      .catch(error => console.error('there has been a people error'));
+    }
+  };
+
   getPets = () => {
     if (!this.state.dog || !this.state.cat) {
     let data = {}
     fetch(`${config.API_ENDPOINT}dog`)
       .then(res => {
-        console.log(res);
         if (!res.ok) {
           throw new Error('please refresh');
         }
@@ -139,7 +183,6 @@ class App extends React.Component {
       })
       .then(resJson => {
         data.dog = resJson
-        console.log(data);
       })
       .then(() => {
         return fetch(`${config.API_ENDPOINT}cat`)
@@ -151,23 +194,61 @@ class App extends React.Component {
         })
         .then(resJson => {
           data.cat = resJson;
-          console.log(data);
         })
       })
-      .then(() => this.setState({dog: data.dog, cat: data.cat}))
+      .then(() => {
+        return fetch(`${config.API_ENDPOINT}people/all`)
+        .then(res => {
+          if (!res.ok) {
+            throw new Error('please refresh');
+          }
+          return res.json();
+        })
+        .then(resJson => {
+          data.people = resJson;
+        })
+      })
+      .then(() => this.setState({dog: data.dog, cat: data.cat, people: data.people}))
       .catch(error => console.error('refresh please'));
       }
     }
 
+  adoptTime = (adoptingType) => {
+    console.log('button press');
+    console.log(adoptingType);
+    return fetch(`${config.API_ENDPOINT}people/next`)
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('please refresh');
+        }
+      return res.json();
+      })
+      .then(resJson => {
+        if (window.localStorage.getItem('inQueue')) {
+          if (adoptingType === 'cat') {
+            resJson.wants = 'cat';
+          }
+          else if (adoptingType === 'dog') {
+            resJson.wants = 'dog';
+          }
+          else if (adoptingType === 'both') {
+            resJson.wants = 'both';
+          }
+          this.cycleNext(resJson)
+        }
+    })
+  }
+
   render() {
   this.getPets();
-  let auto = setTimeout(() => this.getNextPerson(), 10000);
+  let auto = setTimeout(() => this.getNextPerson(), 5000);
     return (
       <div className="App">
         <Queue people={this.state.people}/>
-        <Route exact path="/" component={Splash} />
-        <Route path = "/pets" render={() =>
-          <PetList dog={this.state.dog} cat={this.state.cat} />} />
+        <Route exact path="/" render={() =>
+          <Splash addToQueue={this.addToQueue} />} />
+        <Route path="/pets" render={() =>
+          <PetList dog={this.state.dog} cat={this.state.cat} choiceTime={this.state.choiceTime} adoptTime={this.adoptTime} />} />
         <AdoptedList />
       </div>
     );

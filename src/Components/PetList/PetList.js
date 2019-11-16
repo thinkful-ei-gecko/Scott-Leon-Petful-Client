@@ -16,10 +16,11 @@ class PetList extends React.Component {
   }
 
   showPetList = () => {
-    let returnDog = <PetItem {...this.props.dog} key='dog' />
-    let returnCat = <PetItem {...this.props.cat} key='cat' />
+    let returnDog = <PetItem {...this.props.dog} key='dog' choiceTime={this.props.choiceTime} adoptTime={this.props.adoptTime} animalType='dog' />
+    let returnCat = <PetItem {...this.props.cat} key='cat' choiceTime={this.props.choiceTime} adoptTime={this.props.adoptTime} animalType='cat' />
     return [returnDog, returnCat]
   }
+
 
   render() {
     return (
@@ -31,7 +32,7 @@ class PetList extends React.Component {
         <div className="yellowDivider"></div>
         <div className="adoptBoth">
           <h4>or</h4>
-          <BigButton text='adopt both' classNames='adopt' />
+          <BigButton type="button" text='adopt both' classNames={`adopt ${this.props.choiceTime ? '' : 'grayed' }`} onClick={() => this.props.adoptTime('both')} />
         </div>
       </main>
     );

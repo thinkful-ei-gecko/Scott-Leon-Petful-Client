@@ -139,6 +139,11 @@ button {
   cursor: pointer;
 }
 
+.bigButton.grayed {
+  background-color: gray;
+  cursor: default
+}
+
 /* AdoptedList */
 .adoptedList {
   background-color: #8fc9ac;

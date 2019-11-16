@@ -10,13 +10,16 @@ function PetItem(props) {
       <img src={props.imageURL} alt={props.imageDesc} />
       <ul>
         <li>{props.name}</li>
-        <li>{props.breed}</li>
+        <li>{props.animalType}</li>
         <li>{props.sex}</li>
         <li>{props.age} years old</li>
         <li>{props.breed}</li>
       </ul>
       <div className="clear description">{props.story}</div>
-      <BigButton text='adopt me!' classNames='adopt' />
+      <BigButton type="button" text='adopt me!' classNames={`adopt ${props.choiceTime ? '' : 'grayed' }`} onClick={(e) => {
+        e.preventDefault();
+        props.adoptTime(props.animalType)}
+      }/>
     </article>
 
   );
