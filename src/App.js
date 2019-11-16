@@ -1,6 +1,6 @@
 //Dependencies
 import React from 'react';
-import {Route} from 'react-router-dom';
+import {Route, withRouter} from 'react-router-dom';
 
 //Components
 import Queue from './Components/Queue/Queue';
@@ -8,6 +8,7 @@ import Splash from './Components/Splash/Splash';
 import PetList from './Components/PetList/PetList';
 import AdoptedList from './Components/AdoptedList/AdoptedList';
 import config from './config';
+import Congratulations from './Components/Congratulations';
 
 //CSS
 import './App.css';
@@ -22,10 +23,16 @@ class App extends React.Component {
       cat: '',
       people: '',
       auto: true,
-      choiceTime: false
+      choiceTime: false,
+      adoptionList: []
     }
   }
 
+  componentDidMount() {
+    this.getPets();
+    this.getPeople();
+    this.getNextPerson();
+  }
   addToQueue = (name) => {
     window.localStorage.setItem('inQueue', 'inQueue');
     fetch(`${config.API_ENDPOINT}people`, {
@@ -33,39 +40,41 @@ class App extends React.Component {
       headers: {
         'content-type': 'application/json'
       },
-      body: JSON.stringify({name})
+      body: JSON.stringify({name: name})
     })
       .then(res => {
         if (!res.ok) {
           throw new Error('please refresh');
         }
-      return res.json();
       })
       .then(() => {
-        return fetch(`${config.API_ENDPOINT}people/all`, {
-          method: 'GET',
-          headers: {
-            'content-type': 'application/json'
-          }
-        })
+        fetch(`${config.API_ENDPOINT}people/all`)
+        //  {
+        //   method: 'GET',
+        //   headers: {
+        //     'content-type': 'application/json'
+        //   }
+        // })
           .then(res => {
             if (!res.ok) {
               throw new Error('please refresh');
             }
           return res.json();
           })
-          .then(resJson => this.setState({people: resJson}))
+          .then(resJson => {
+            this.setState({people: resJson})
+            window.alert('Thank you for joining the queue!');
+          })
       })
-      .catch(error => console.error('there has been an error'));
+      .catch(error => {
+        console.error('there has been an error')
+      });
 
   }
 
   cycleNext = (person) => {
     person = person || {};
-    let cat = {};
-    let dog = {};
-    let both = {};
-    return fetch(`${config.API_ENDPOINT}people/next`, {
+    fetch(`${config.API_ENDPOINT}people/next`, {
       method: 'DELETE',
       headers: {
         'content-type': 'application/json'
@@ -95,7 +104,9 @@ class App extends React.Component {
       return res.json();
       })
       .then(resJson => {
-        cat = resJson
+        let newAdoptedItem = {petType: 'cat', petName: resJson.name}
+        this.setState({
+          adoptionList: [newAdoptedItem, ...this.state.adoptionList]});
       })
     }
 
@@ -113,15 +124,17 @@ class App extends React.Component {
         return res.json();
         })
         .then(resJson => {
-          dog = resJson
-        })
-      }
-    })
+          let newAdoptedItem = {petType: 'dog', petName: resJson.name}
+          this.setState({
+            adoptionList: [newAdoptedItem,...this.state.adoptionList]});
+      })
+    }})
     .then(() => {
-      //set recently adopted with dog and cat and person ()
-      //call getPets()
+      this.getPets();
     })
-    .catch(error => console.error('there has been an error'));
+    .catch(error => {
+      console.error('there has been an error');
+    });
 
   }
 
@@ -141,7 +154,8 @@ class App extends React.Component {
     }
 
   getNextPerson = () => {
-    return fetch(`${config.API_ENDPOINT}people/next`)
+    setInterval(() => {
+    fetch(`${config.API_ENDPOINT}people/next`)
       .then(res => {
         if (!res.ok) {
           throw new Error('please refresh');
@@ -152,27 +166,30 @@ class App extends React.Component {
         if (resJson.auto === false) {
           this.setState({auto: false}, this.attemptProcess(resJson));
         }
+        else {
         this.attemptProcess();
+        }
       })
       .catch(error => console.error('error in people'));
-  }
+  }, 7000);
+}
 
   getPeople = () => {
-    if (!this.state.people || this.state.people === '') {
-    fetch(`${config.API_ENDPOINT}people/all`)
+    return fetch(`${config.API_ENDPOINT}people/all`)
       .then(res => {
         if (!res.ok) {
           throw new Error('please refresh');
         }
       return res.json();
       })
-      .then(resJson => this.setState({people: resJson}))
+      .then(resJson => {
+        this.setState({people: resJson})
+        return resJson
+      })
       .catch(error => console.error('there has been a people error'));
-    }
-  };
+  }
 
   getPets = () => {
-    if (!this.state.dog || !this.state.cat) {
     let data = {}
     fetch(`${config.API_ENDPOINT}dog`)
       .then(res => {
@@ -210,12 +227,10 @@ class App extends React.Component {
       })
       .then(() => this.setState({dog: data.dog, cat: data.cat, people: data.people}))
       .catch(error => console.error('refresh please'));
-      }
     }
 
   adoptTime = (adoptingType) => {
-    console.log('button press');
-    console.log(adoptingType);
+    if (window.localStorage.getItem('inQueue') && this.state.choiceTime === true) {
     return fetch(`${config.API_ENDPOINT}people/next`)
       .then(res => {
         if (!res.ok) {
@@ -224,35 +239,66 @@ class App extends React.Component {
       return res.json();
       })
       .then(resJson => {
-        if (window.localStorage.getItem('inQueue')) {
+        let person = resJson
           if (adoptingType === 'cat') {
-            resJson.wants = 'cat';
+            person.wants = 'cat';
           }
           else if (adoptingType === 'dog') {
-            resJson.wants = 'dog';
+            person.wants = 'dog';
           }
           else if (adoptingType === 'both') {
-            resJson.wants = 'both';
+            person.wants = 'both';
           }
-          this.cycleNext(resJson)
-        }
-    })
+          this.setState({person: person});
+          window.localStorage.removeItem('inQueue');
+          this.props.history.push('/congratulations');
+          this.setState({auto: true});
+          this.setState({choiceTime: false});
+          this.cycleNext(person)
+        })
+      .catch(error => console.error('error'));
+    }
   }
 
+  newDog = () => {
+    fetch(`${config.API_ENDPOINT}dog`)
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('please refresh');
+        }
+      return res.json();
+      })
+      .then(resJson => this.setState({dog: resJson}))
+      .catch(error => console.error('error'));
+  }
+
+  newCat = () => {
+    fetch(`${config.API_ENDPOINT}cat`)
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('please refresh');
+        }
+      return res.json();
+      })
+      .then(resJson => this.setState({cat: resJson}))
+      .catch(error => console.error('error'));
+  }
+
+
+
   render() {
-  this.getPets();
-  let auto = setTimeout(() => this.getNextPerson(), 5000);
     return (
       <div className="App">
-        <Queue people={this.state.people}/>
+        <Queue people={this.state.people} getPeople={this.getPeople} />
         <Route exact path="/" render={() =>
           <Splash addToQueue={this.addToQueue} />} />
         <Route path="/pets" render={() =>
-          <PetList dog={this.state.dog} cat={this.state.cat} choiceTime={this.state.choiceTime} adoptTime={this.adoptTime} />} />
-        <AdoptedList />
+          <PetList dog={this.state.dog} cat={this.state.cat} choiceTime={this.state.choiceTime} adoptTime={this.adoptTime} newDog={this.newDog} newCat={this.newCat}/>} />
+        <Route path="/congratulations" component={Congratulations} />
+        <AdoptedList adoptionList={this.state.adoptionList} />
       </div>
     );
   }
 }
 
-export default App;
+export default withRouter(App);

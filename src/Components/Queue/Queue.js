@@ -13,39 +13,39 @@ class Queue extends React.Component {
   }
 
   numberInQueue = () => {
-    let people = this.state.people || [];
-    console.log(people);
-    let number = <h6 className="bold" key={Math.random()}>{this.state.numberInQueue} people in the queue now</h6>;
-    let peopleSprites = people.map((item,index) => {
-      return <li key={index} className={`personSprite ${item===1 ? 'nextInLine' : ''}`}>
-        <img src="personSprite.png" alt="person waiting"></img>
-      </li>
-    });
-    return [number,peopleSprites];
+    let number = <h6 className="bold" key={Math.random()}>{this.state.people.length} people in the queue now</h6>;
+    return number;
   }
   
   checkIfInQueue = () => {
-    let people = this.state.people || [];
     let inQueueText = <div><h6>You are not in the queue!</h6><Link to="/"><h6 className="bold joinSmall">Join!</h6></Link></div>
     let inQueueCheck = window.localStorage.getItem('inQueue');
     let indexOf = '';
     if (inQueueCheck) {
-      let find = people.find(person => person.auto === false);
-      indexOf = people.indexOf(find);
+      let find = this.state.people.find(person => person.auto === false);
+      indexOf = this.state.people.indexOf(find);
+      if (indexOf === 0) {
+        inQueueText = <div><h6 className="bold">Go adopt your animal!</h6></div>
+      }
       inQueueText = <div><h6 className="bold">You are number {indexOf + 1} in queue!</h6></div>
     }
     return inQueueText;
   }
 
-  componentWillMount() {
-    this.setState({numberInQueue: this.props.people.length, people: this.props.people })
-  }
+  componentDidMount() {
+    this.props.getPeople()
+      .then(resJson => this.setState({numberInQueue: resJson.length, people: resJson }));
+    setInterval(() => { this.props.getPeople()
+      .then(resJson => this.setState({numberInQueue: resJson.length, people: resJson }));
+  }, 7000)
+};
 
   render() {
+    let people = this.props.people || [];
     return(
       <section className="personQueueList">
-        {this.numberInQueue()}
-        {this.checkIfInQueue()}
+        {this.numberInQueue(people)}
+        {this.checkIfInQueue(people)}
       </section>
 
     );

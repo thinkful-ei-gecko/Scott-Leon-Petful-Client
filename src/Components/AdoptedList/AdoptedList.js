@@ -4,21 +4,27 @@ import React from 'react';
 //Components
 import AdoptedItem from './AdoptedItem/AdoptedItem';
 
-function displayAdoptedItems() {
-  let adoptedItem = {petName: 'Maria', ownerName: 'Jenny', petType: 'dog'};
-  let returnItem = [1,2,3].map(item => {
-    return <AdoptedItem {...adoptedItem} key={item} />
+
+function displayAdoptedItems(adoptionList) {
+  let cycleList = [];
+  for (let i=0; i<3; i++) {
+    if (adoptionList[i]) {
+    cycleList.push(adoptionList[i]);
+    }
+  }
+  let returnItem = cycleList.map((item,index) => {
+    return <AdoptedItem {...item} key={index} />
   })
   return returnItem;
 
 }
 
-function AdoptedList() {
+function AdoptedList(props) {
   return(
     <section className="adoptedList">
       <h4>Successful Adoptions</h4>
       <ul>
-        {displayAdoptedItems()}
+        {displayAdoptedItems(props.adoptionList)}
       </ul>
     </section>
   );

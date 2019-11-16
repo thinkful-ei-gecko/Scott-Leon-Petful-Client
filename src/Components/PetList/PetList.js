@@ -16,8 +16,8 @@ class PetList extends React.Component {
   }
 
   showPetList = () => {
-    let returnDog = <PetItem {...this.props.dog} key='dog' choiceTime={this.props.choiceTime} adoptTime={this.props.adoptTime} animalType='dog' />
-    let returnCat = <PetItem {...this.props.cat} key='cat' choiceTime={this.props.choiceTime} adoptTime={this.props.adoptTime} animalType='cat' />
+    let returnDog = <PetItem {...this.props.dog} key='dog' choiceTime={this.props.choiceTime} adoptTime={this.props.adoptTime} animalType='dog' newDog={this.props.newDog} />
+    let returnCat = <PetItem {...this.props.cat} key='cat' choiceTime={this.props.choiceTime} adoptTime={this.props.adoptTime} animalType='cat' newCat={this.props.newCat} />
     return [returnDog, returnCat]
   }
 
@@ -26,13 +26,17 @@ class PetList extends React.Component {
     return (
       <main className="main petList">
         <Link to="/"><h1>Petful</h1></Link>
-        <div class="yellowDivider"></div>
+        <div className="yellowDivider"></div>
         <h2>Current Pets</h2>
         {this.showPetList()}
         <div className="yellowDivider"></div>
         <div className="adoptBoth">
           <h4>or</h4>
-          <BigButton type="button" text='adopt both' classNames={`adopt ${this.props.choiceTime ? '' : 'grayed' }`} onClick={() => this.props.adoptTime('both')} />
+          <button type="button" className={`bigButton adopt ${this.props.choiceTime ? '' : 'grayed' }`} onClick={() => {
+            this.props.adoptTime('both');
+            this.props.newDog();
+            this.props.newCat();
+          }}>adopt both</button>
         </div>
       </main>
     );

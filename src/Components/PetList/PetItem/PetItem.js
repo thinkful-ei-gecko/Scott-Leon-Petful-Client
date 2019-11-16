@@ -16,10 +16,16 @@ function PetItem(props) {
         <li>{props.breed}</li>
       </ul>
       <div className="clear description">{props.story}</div>
-      <BigButton type="button" text='adopt me!' classNames={`adopt ${props.choiceTime ? '' : 'grayed' }`} onClick={(e) => {
+      <button type="button" className={`bigButton adopt ${props.choiceTime ? '' : 'grayed' }`} onClick={(e) => {
         e.preventDefault();
+        if (props.newDog) {
+          props.newDog();
+        }
+        else if (props.newCat) {
+          props.newCat();
+        }
         props.adoptTime(props.animalType)}
-      }/>
+      }>adopt me!</button>
     </article>
 
   );

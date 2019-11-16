@@ -238,8 +238,29 @@ button {
   margin-bottom: 4px;
 }
 
-.petList h4 {
+.congratulations h4, .petList h4 {
   font-weight: bold;
   margin: 15px 0px;
   font-size: 30px;
+}
+
+.congratulations {
+  width: 80%;
+  margin: 0 auto;
+  margin-top: 150px;
+}
+
+.congratulations h3 { 
+  font-size: 60px;
+  font-weight: bold;
+  margin: 15px 0px;
+}
+
+.congratulations h5 {
+  font-size: 20px;
+  margin-bottom: 15px;
+}
+
+.congratulations a {
+  text-decoration: underline;
 }
